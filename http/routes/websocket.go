@@ -50,11 +50,20 @@ func serveWS(pool *websocket.Pool, w http.ResponseWriter, r *http.Request, claim
 	errors.ErrorCheck(err)
 	br := rabbitmq.GetRabbitMQBroker()
 
+	email, ok := claims["Email"].(string)
+	if !ok {
+		log.Println("Error getting email from claims")
+	}
+	userID := uint(claims["UserID"].(float64))
+	if userID == 0 {
+		log.Println("Error getting userID from claims")
+	}
+
 	client := &websocket.Client{
 		Connection: conn,
 		Pool:       pool,
-		Email:      claims["Email"].(string),
-		UserID:     uint(claims["UserID"].(float64)),
+		Email:      email,
+		UserID:     userID,
 	}
 
 	pool.Register <- client
@@ -66,8 +75,8 @@ func serveWS(pool *websocket.Pool, w http.ResponseWriter, r *http.Request, claim
 
 func handleWebsocketAuthenticationErr(w http.ResponseWriter, err error) {
 	log.Println("websocket error: ", err)
-	w.WriteHeader(http.StatusUnauthorized)
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
+	w.WriteHeader(http.StatusUnauthorized)
 	res := responses.ErrorResponse{Message: err.Error(), Status: false, Code: http.StatusUnauthorized}
 	data, err := json.Marshal(res)
 	errors.ErrorCheck(err)

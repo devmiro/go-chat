@@ -38,7 +38,7 @@ func run() error {
 	var logger log.Logger
 	fileLogging := os.Getenv("LOG_TO_FILE")
 	if fileLogging == "true" {
-		file, err := os.Create(fmt.Sprintf("./applog-%s.txt", time.Now().Format(time.RFC3339Nano)))
+		file, err := os.Create(fmt.Sprintf("./applog-%s.txt", time.Now().Format(time.DateOnly)))
 		if err != nil {
 			stdlog.Println("Could not create log file: ", err)
 			return err

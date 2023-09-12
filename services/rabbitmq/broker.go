@@ -64,10 +64,10 @@ func (b *Broker) PublishMessage(requestBody chan []byte) {
 		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 
 		err := b.Channel.PublishWithContext(ctx,
-			"",                    // exchange
-			b.PublisherQueue.Name, // routing key
-			false,                 // mandatory
-			false,                 // immediate
+			"",                   // exchange
+			b.ReceiverQueue.Name, // routing key
+			false,                // mandatory
+			false,                // immediate
 			amqp.Publishing{
 				ContentType: "text/plain",
 				Body:        body,
@@ -84,13 +84,13 @@ func (b *Broker) PublishMessage(requestBody chan []byte) {
 // ReadMessages reads messages from the stock-bot's publisher queue
 func (b *Broker) ReadMessages(pool *websocket.Pool) {
 	msgs, err := b.Channel.Consume(
-		b.ReceiverQueue.Name, // queue
-		"",                   // consumer
-		true,                 // auto-ack
-		false,                // exclusive
-		false,                // no-local
-		false,                // no-wait
-		nil,                  // args
+		b.PublisherQueue.Name, // queue
+		"",                    // consumer
+		true,                  // auto-ack
+		false,                 // exclusive
+		false,                 // no-local
+		false,                 // no-wait
+		nil,                   // args
 	)
 	if err != nil {
 		log.Printf("ReadMessages Error occured %s\n", err)
